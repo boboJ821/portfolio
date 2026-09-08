@@ -1,34 +1,19 @@
 import crypto from 'crypto'
+import { getBearerToken, verifyAdminToken } from '../api/_lib/auth.js'
 
 const visits = []
-
-function verifyToken(token, secret) {
-  if (!secret || typeof token !== 'string' || !token.includes('.')) return false
-
-  const [payload, signature] = token.split('.')
-  const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex')
-  const actualBuffer = Buffer.from(signature)
-  const expectedBuffer = Buffer.from(expected)
-
-  return (
-    actualBuffer.length === expectedBuffer.length &&
-    crypto.timingSafeEqual(actualBuffer, expectedBuffer)
-  )
-}
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end()
+    res.status(204).end()
     return
   }
 
   if (req.method === 'GET') {
-    const authorization = req.headers.authorization || ''
-    const token = authorization.startsWith('Bearer ') ? authorization.slice(7) : ''
-
-    if (!verifyToken(token, process.env.ADMIN_SECRET)) {
+    const token = getBearerToken(req.headers.authorization)
+    if (!verifyAdminToken(token, process.env.ADMIN_SECRET)) {
       res.status(401).json({ error: '未授权' })
       return
     }
@@ -58,7 +43,6 @@ export default async function handler(req, res) {
 
   if (req.method === 'PUT') {
     const visit = visits.find(({ id }) => id === req.query.id)
-
     if (!visit) {
       res.status(404).json({ error: '访问记录不存在' })
       return

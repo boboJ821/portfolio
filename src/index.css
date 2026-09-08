@@ -6,29 +6,45 @@
   color-scheme: dark;
 }
 
-body {
-  margin: 0;
-  padding: 0;
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  background-color: #2A0944;
-  color: #F2F2F2;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background-color: #2a0944;
+  color: #f2f2f2;
   overflow-x: hidden;
 }
 
-/* 自定义滚动条样式 */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* 自定义滚动条 */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #2A0944;
+  background: #2a0944;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #9336B4;
   border-radius: 4px;
+  background: #9336b4;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #FF26B9;
-} 
+  background: #ff26b9;
+}

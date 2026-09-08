@@ -1,0 +1,494 @@
+import * as React from 'react'
+import './ProjectCarousel.css'
+
+export interface ProjectSlide {
+  id: string
+  src?: string
+  videoSrc?: string
+  poster?: string
+  accent?: string
+  alt: string
+  title?: string
+  eyebrow?: string
+  subtitle?: string
+  tags?: string[]
+}
+
+export interface ProjectCarouselProps {
+  slides: ProjectSlide[]
+  rotate?: number
+  depth?: number
+  perspective?: number
+  falloff?: number
+  fade?: number
+  cardWidth?: string
+  gap?: number
+  loop?: boolean
+  showCaption?: boolean
+  showPagination?: boolean
+  showNavigation?: boolean
+  autoPlay?: boolean
+  autoPlayDelay?: number
+  label?: string
+  className?: string
+}
+
+const MOTION_DURATION = 620
+const TRACK_RESET_DURATION = 280
+const STAGING_RANGE = 3
+
+const joinClasses = (...classes: Array<string | false | undefined>) =>
+  classes.filter(Boolean).join(' ')
+
+const Chevron = ({ direction }: { direction: 'left' | 'right' }) => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    className="coverflow__chevron"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d={direction === 'left' ? 'm15 18-6-6 6-6' : 'm9 18 6-6-6-6'} />
+  </svg>
+)
+
+export function ProjectCarousel({
+  slides,
+  rotate = 44,
+  depth = 0.6,
+  perspective = 3.2,
+  falloff = 0.56,
+  fade = 0.12,
+  cardWidth = 'clamp(17rem, 38vw, 34rem)',
+  gap = 0.08,
+  loop = false,
+  showCaption = true,
+  showPagination = true,
+  showNavigation = true,
+  autoPlay = true,
+  autoPlayDelay = 2800,
+  label = 'Selected projects',
+  className,
+}: ProjectCarouselProps) {
+  const count = slides.length
+  const frameRef = React.useRef<HTMLDivElement>(null)
+  const trackRef = React.useRef<HTMLDivElement>(null)
+  const videoRefs = React.useRef(new Map<string, HTMLVideoElement>())
+  const selectedRef = React.useRef(0)
+  const movingRef = React.useRef(false)
+  const isVisibleRef = React.useRef(false)
+  const lastInteractionRef = React.useRef(0)
+  const finishTimerRef = React.useRef<number | null>(null)
+  const trackTimerRef = React.useRef<number | null>(null)
+  const dragRafRef = React.useRef<number | null>(null)
+  const dragRef = React.useRef<{
+    id: number
+    startX: number
+    lastX: number
+    lastTime: number
+    velocity: number
+    offset: number
+    width: number
+  } | null>(null)
+  const [selected, setSelected] = React.useState(0)
+  const [motionDirection, setMotionDirection] = React.useState(0)
+
+  const normalizeIndex = React.useCallback(
+    (index: number) => {
+      if (!count) return 0
+      return ((index % count) + count) % count
+    },
+    [count],
+  )
+
+  const markInteraction = React.useCallback(() => {
+    lastInteractionRef.current = performance.now()
+  }, [])
+
+  const triggerHaptic = React.useCallback(() => {
+    if (
+      typeof window === 'undefined' ||
+      !window.matchMedia('(pointer: coarse)').matches ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      !('vibrate' in navigator)
+    ) {
+      return
+    }
+
+    navigator.vibrate(10)
+  }, [])
+
+  const move = React.useCallback(
+    (direction: number, isUserInteraction = true) => {
+      if (!count || movingRef.current || dragRef.current) return
+
+      const nextDirection = Math.sign(direction)
+      if (!nextDirection) return
+
+      const current = selectedRef.current
+      if (!loop) {
+        if (nextDirection < 0 && current === 0) return
+        if (nextDirection > 0 && current === count - 1) return
+      }
+
+      if (isUserInteraction) markInteraction()
+      movingRef.current = true
+      setMotionDirection(nextDirection)
+      if (isUserInteraction) triggerHaptic()
+
+      finishTimerRef.current = window.setTimeout(() => {
+        const next = loop
+          ? normalizeIndex(selectedRef.current + nextDirection)
+          : Math.max(0, Math.min(count - 1, selectedRef.current + nextDirection))
+
+        selectedRef.current = next
+        setSelected(next)
+        setMotionDirection(0)
+        movingRef.current = false
+        finishTimerRef.current = null
+      }, MOTION_DURATION)
+    },
+    [count, loop, markInteraction, normalizeIndex, triggerHaptic],
+  )
+
+  const goTo = React.useCallback(
+    (index: number) => {
+      if (index === selectedRef.current || movingRef.current || dragRef.current) return
+      markInteraction()
+
+      const forward = normalizeIndex(index - selectedRef.current)
+      const backward = normalizeIndex(selectedRef.current - index)
+      if (forward === 1) {
+        move(1)
+      } else if (backward === 1) {
+        move(-1)
+      } else {
+        selectedRef.current = index
+        setSelected(index)
+      }
+    },
+    [markInteraction, move, normalizeIndex],
+  )
+
+  const resetTrack = React.useCallback(() => {
+    const track = trackRef.current
+    if (!track) return
+
+    track.classList.remove('coverflow__track--dragging')
+    track.classList.add('coverflow__track--resetting')
+    requestAnimationFrame(() => {
+      track.style.transform = 'translate3d(0, 0, 0)'
+    })
+
+    if (trackTimerRef.current !== null) window.clearTimeout(trackTimerRef.current)
+    trackTimerRef.current = window.setTimeout(() => {
+      track.classList.remove('coverflow__track--resetting')
+      trackTimerRef.current = null
+    }, TRACK_RESET_DURATION)
+  }, [])
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (movingRef.current) return
+    markInteraction()
+    event.currentTarget.setPointerCapture(event.pointerId)
+
+    const track = trackRef.current
+    if (track) {
+      track.classList.remove('coverflow__track--resetting')
+      track.classList.add('coverflow__track--dragging')
+    }
+
+    dragRef.current = {
+      id: event.pointerId,
+      startX: event.clientX,
+      lastX: event.clientX,
+      lastTime: performance.now(),
+      velocity: 0,
+      offset: 0,
+      width: frameRef.current?.getBoundingClientRect().width || 1,
+    }
+  }
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current
+    if (!drag || drag.id !== event.pointerId) return
+
+    const now = performance.now()
+    const elapsed = Math.max(now - drag.lastTime, 1)
+    drag.velocity = (event.clientX - drag.lastX) / elapsed
+    drag.lastX = event.clientX
+    drag.lastTime = now
+    drag.offset = Math.max(
+      -drag.width * 0.38,
+      Math.min(drag.width * 0.38, event.clientX - drag.startX),
+    )
+
+    if (dragRafRef.current !== null) return
+    dragRafRef.current = requestAnimationFrame(() => {
+      const currentDrag = dragRef.current
+      if (currentDrag && trackRef.current) {
+        trackRef.current.style.transform = `translate3d(${currentDrag.offset}px, 0, 0)`
+      }
+      dragRafRef.current = null
+    })
+  }
+
+  const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current
+    if (!drag || drag.id !== event.pointerId) return
+
+    dragRef.current = null
+    if (dragRafRef.current !== null) {
+      cancelAnimationFrame(dragRafRef.current)
+      dragRafRef.current = null
+    }
+
+    const shouldMove =
+      Math.abs(drag.offset) > Math.min(drag.width * 0.11, 90) || Math.abs(drag.velocity) > 0.45
+    const direction = drag.offset < 0 ? 1 : -1
+    resetTrack()
+
+    if (shouldMove) {
+      requestAnimationFrame(() => move(direction))
+    }
+  }
+
+  React.useEffect(() => {
+    const frame = frameRef.current
+    if (!frame || !count) return
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    lastInteractionRef.current = performance.now()
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting && entry.intersectionRatio > 0.2
+      },
+      { threshold: [0, 0.2, 0.55] },
+    )
+    observer.observe(frame)
+
+    if (!autoPlay || !loop) return () => observer.disconnect()
+
+    const timer = window.setInterval(() => {
+      const canAdvance =
+        isVisibleRef.current &&
+        document.visibilityState === 'visible' &&
+        !reducedMotion.matches &&
+        performance.now() - lastInteractionRef.current >= autoPlayDelay
+
+      if (canAdvance) move(1, false)
+    }, autoPlayDelay)
+
+    return () => {
+      observer.disconnect()
+      window.clearInterval(timer)
+    }
+  }, [autoPlay, autoPlayDelay, count, loop, move])
+
+  React.useEffect(() => {
+    const frame = frameRef.current
+    if (!frame) return
+
+    const syncVideos = (isVisible: boolean) => {
+      videoRefs.current.forEach((video, id) => {
+        const isActive = slides[selected]?.id === id
+        if (isVisible && document.visibilityState === 'visible' && isActive) {
+          video.play().catch(() => undefined)
+        } else {
+          video.pause()
+        }
+      })
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => syncVideos(entry.isIntersecting && entry.intersectionRatio > 0.35),
+      { threshold: [0, 0.35] },
+    )
+    const handleVisibility = () => syncVideos(true)
+
+    observer.observe(frame)
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => {
+      observer.disconnect()
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }, [selected, slides])
+
+  React.useEffect(
+    () => () => {
+      if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current)
+      if (trackTimerRef.current !== null) window.clearTimeout(trackTimerRef.current)
+      if (dragRafRef.current !== null) cancelAnimationFrame(dragRafRef.current)
+    },
+    [],
+  )
+
+  if (!count) return null
+
+  const active = slides[selected]
+  const renderedSlides: Array<{ slide: ProjectSlide; slot: number; position: number }> = []
+  const usedIds = new Set<string>()
+  const renderRange = Math.min(STAGING_RANGE, Math.floor((count - 1) / 2))
+
+  for (let slot = -renderRange; slot <= renderRange; slot += 1) {
+    const slide = slides[normalizeIndex(selected + slot)]
+    if (!slide || usedIds.has(slide.id)) continue
+    usedIds.add(slide.id)
+    renderedSlides.push({ slide, slot, position: slot - motionDirection })
+  }
+
+  return (
+    <div
+      className={joinClasses('coverflow', motionDirection !== 0 && 'coverflow--moving', className)}
+      style={{ '--coverflow-card': cardWidth } as React.CSSProperties}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label={label}
+    >
+      <div className="coverflow__stage">
+        <div
+          ref={frameRef}
+          className="coverflow__frame"
+          tabIndex={0}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowLeft') {
+              event.preventDefault()
+              move(-1)
+            } else if (event.key === 'ArrowRight') {
+              event.preventDefault()
+              move(1)
+            }
+          }}
+          style={{ perspective: `calc(var(--coverflow-card) * ${perspective})` }}
+        >
+          <div ref={trackRef} className="coverflow__track">
+            {renderedSlides.map(({ slide, position }) => {
+              const distance = Math.abs(position)
+              const ramp = Math.pow(distance, falloff)
+              const tilt = Math.min(rotate * ramp, 80) * Math.sign(position)
+              const x = position * (1 + gap) * 100
+              const z = -depth * ramp
+              const opacity = distance >= STAGING_RANGE ? 0 : Math.max(0, 1 - fade * distance)
+
+              return (
+                <div
+                  key={slide.id}
+                  className="coverflow__card"
+                  style={
+                    {
+                      '--coverflow-accent': slide.accent,
+                      transform:
+                        `translate3d(calc(-50% + ${x}%), 0, calc(var(--coverflow-card) * ${z})) ` +
+                        `rotateY(${-tilt}deg)`,
+                      opacity,
+                      zIndex: 100 - Math.round(distance),
+                    } as React.CSSProperties
+                  }
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label={slide.alt}
+                  aria-hidden={position !== 0}
+                >
+                  {slide.videoSrc ? (
+                    <video
+                      ref={(node) => {
+                        if (node) videoRefs.current.set(slide.id, node)
+                        else videoRefs.current.delete(slide.id)
+                      }}
+                      src={slide.videoSrc}
+                      poster={slide.poster || slide.src}
+                      muted
+                      loop
+                      playsInline
+                      preload={position === 0 ? 'metadata' : 'none'}
+                      aria-hidden="true"
+                    />
+                  ) : slide.src ? (
+                    <img
+                      src={slide.src}
+                      alt={slide.alt}
+                      draggable={false}
+                      loading={Math.abs(position) <= 1 ? 'eager' : 'lazy'}
+                    />
+                  ) : (
+                    <div className="coverflow__placeholder" aria-hidden="true">
+                      <span>{String(slides.indexOf(slide) + 1).padStart(2, '0')}</span>
+                    </div>
+                  )}
+
+                  <div className="coverflow__card-copy" aria-hidden="true">
+                    {slide.eyebrow && <span>{slide.eyebrow}</span>}
+                    {slide.title && <strong>{slide.title}</strong>}
+                    {slide.tags && (
+                      <div>
+                        {slide.tags.slice(0, 3).map((tag) => (
+                          <small key={tag}>{tag}</small>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {showNavigation && (
+          <div className="coverflow__navigation" aria-label="作品切换">
+            <button
+              type="button"
+              className="coverflow__arrow"
+              aria-label="上一个作品"
+              disabled={!loop && selected === 0}
+              onClick={() => move(-1)}
+            >
+              <Chevron direction="left" />
+            </button>
+            <button
+              type="button"
+              className="coverflow__arrow"
+              aria-label="下一个作品"
+              disabled={!loop && selected === count - 1}
+              onClick={() => move(1)}
+            >
+              <Chevron direction="right" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="coverflow__details" aria-live="polite">
+        {showCaption && active?.title && (
+          <div key={selected} className="coverflow__caption">
+            <span className="coverflow__counter">
+              {String(selected + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
+            </span>
+            <h3>{active.title}</h3>
+            {active.subtitle && <p>{active.subtitle}</p>}
+          </div>
+        )}
+
+        {showPagination && (
+          <div className="coverflow__pagination" aria-label="选择作品">
+            {slides.map((slide, index) => (
+              <button
+                key={slide.id}
+                type="button"
+                aria-label={`前往第 ${index + 1} 个作品`}
+                aria-current={index === selected ? 'true' : undefined}
+                onClick={() => goTo(index)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
