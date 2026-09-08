@@ -1,0 +1,18 @@
+{
+  "files": [
+    "src/components/Sections/About.jsx",
+    "src/components/Sections/Skills.jsx",
+    "src/components/UI/Navbar.jsx",
+    "src/components/Experience/Experience.jsx",
+    "src/components/Sections/Contact.jsx",
+    "src/App.jsx",
+    "src/main.jsx",
+    "vite.config.js"
+  ],
+  "dependencies": {
+    "react": "^18.2.0",
+    "framer-motion": "^12.3.1",
+    "@react-three/fiber": "^8.17.14",
+    "@react-three/drei": "^9.121.4"
+  }
+} 
