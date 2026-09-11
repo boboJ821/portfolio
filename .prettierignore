@@ -4,3 +4,5 @@ node_modules/
 .vercel/
 tmp/
 package-lock.json
+# Vercel normalizes this file in its remote build environment.
+vercel.json
