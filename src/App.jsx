@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Scene from './components/Background/Scene'
 import Navbar from './components/UI/Navbar'
 import Hero from './components/Sections/Hero'
@@ -12,12 +12,28 @@ import Education from './components/Sections/Education'
 import { useVisitTracker } from './hooks/useVisitTracker'
 
 const Dashboard = lazy(() => import('./components/Admin/Dashboard'))
+const ProjectDetail = lazy(() => import('./components/Projects/ProjectDetail'))
+
+const RouteScrollManager = () => {
+  const { pathname, hash } = useLocation()
+
+  useEffect(() => {
+    if (hash) {
+      requestAnimationFrame(() => document.querySelector(hash)?.scrollIntoView())
+      return
+    }
+    window.scrollTo({ top: 0, left: 0 })
+  }, [pathname, hash])
+
+  return null
+}
 
 function App() {
   useVisitTracker()
 
   return (
     <BrowserRouter>
+      <RouteScrollManager />
       <Routes>
         <Route
           path="/"
@@ -35,6 +51,14 @@ function App() {
                 <Contact />
               </div>
             </main>
+          }
+        />
+        <Route
+          path="/projects/:projectId"
+          element={
+            <Suspense fallback={<div className="min-h-screen bg-[#09070d]" />}>
+              <ProjectDetail />
+            </Suspense>
           }
         />
         <Route

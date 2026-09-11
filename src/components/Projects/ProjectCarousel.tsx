@@ -16,6 +16,7 @@ export interface ProjectSlide {
 
 export interface ProjectCarouselProps {
   slides: ProjectSlide[]
+  onSlideOpen?: (slide: ProjectSlide) => void
   rotate?: number
   depth?: number
   perspective?: number
@@ -57,6 +58,7 @@ const Chevron = ({ direction }: { direction: 'left' | 'right' }) => (
 
 export function ProjectCarousel({
   slides,
+  onSlideOpen,
   rotate = 44,
   depth = 0.6,
   perspective = 3.2,
@@ -84,8 +86,10 @@ export function ProjectCarousel({
   const finishTimerRef = React.useRef<number | null>(null)
   const trackTimerRef = React.useRef<number | null>(null)
   const dragRafRef = React.useRef<number | null>(null)
+  const didDragRef = React.useRef(false)
   const dragRef = React.useRef<{
     id: number
+    openId: string | null
     startX: number
     lastX: number
     lastTime: number
@@ -193,6 +197,7 @@ export function ProjectCarousel({
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (movingRef.current) return
     markInteraction()
+    didDragRef.current = false
     event.currentTarget.setPointerCapture(event.pointerId)
 
     const track = trackRef.current
@@ -203,6 +208,9 @@ export function ProjectCarousel({
 
     dragRef.current = {
       id: event.pointerId,
+      openId:
+        (event.target as HTMLElement).closest<HTMLElement>('.coverflow__card--openable')?.dataset
+          .slideId || null,
       startX: event.clientX,
       lastX: event.clientX,
       lastTime: performance.now(),
@@ -225,6 +233,7 @@ export function ProjectCarousel({
       -drag.width * 0.38,
       Math.min(drag.width * 0.38, event.clientX - drag.startX),
     )
+    if (Math.abs(drag.offset) > 6) didDragRef.current = true
 
     if (dragRafRef.current !== null) return
     dragRafRef.current = requestAnimationFrame(() => {
@@ -253,6 +262,9 @@ export function ProjectCarousel({
 
     if (shouldMove) {
       requestAnimationFrame(() => move(direction))
+    } else if (drag.openId && onSlideOpen && !didDragRef.current) {
+      const slide = slides.find((item) => item.id === drag.openId)
+      if (slide) onSlideOpen(slide)
     }
   }
 
@@ -292,10 +304,10 @@ export function ProjectCarousel({
     const frame = frameRef.current
     if (!frame) return
 
-    const syncVideos = (isVisible: boolean) => {
-      videoRefs.current.forEach((video, id) => {
-        const isActive = slides[selected]?.id === id
-        if (isVisible && document.visibilityState === 'visible' && isActive) {
+    const visibleVideos = new Set<HTMLVideoElement>()
+    const syncVideos = () => {
+      videoRefs.current.forEach((video) => {
+        if (visibleVideos.has(video) && document.visibilityState === 'visible') {
           video.play().catch(() => undefined)
         } else {
           video.pause()
@@ -304,12 +316,19 @@ export function ProjectCarousel({
     }
 
     const observer = new IntersectionObserver(
-      ([entry]) => syncVideos(entry.isIntersecting && entry.intersectionRatio > 0.35),
-      { threshold: [0, 0.35] },
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target as HTMLVideoElement
+          if (entry.isIntersecting && entry.intersectionRatio > 0.01) visibleVideos.add(video)
+          else visibleVideos.delete(video)
+        })
+        syncVideos()
+      },
+      { threshold: [0, 0.01] },
     )
-    const handleVisibility = () => syncVideos(true)
+    const handleVisibility = () => syncVideos()
 
-    observer.observe(frame)
+    videoRefs.current.forEach((video) => observer.observe(video))
     document.addEventListener('visibilitychange', handleVisibility)
     return () => {
       observer.disconnect()
@@ -380,7 +399,10 @@ export function ProjectCarousel({
               return (
                 <div
                   key={slide.id}
-                  className="coverflow__card"
+                  className={joinClasses(
+                    'coverflow__card',
+                    position === 0 && onSlideOpen && 'coverflow__card--openable',
+                  )}
                   style={
                     {
                       '--coverflow-accent': slide.accent,
@@ -391,10 +413,22 @@ export function ProjectCarousel({
                       zIndex: 100 - Math.round(distance),
                     } as React.CSSProperties
                   }
-                  role="group"
+                  role={position === 0 && onSlideOpen ? 'link' : 'group'}
+                  data-slide-id={slide.id}
                   aria-roledescription="slide"
                   aria-label={slide.alt}
                   aria-hidden={position !== 0}
+                  tabIndex={position === 0 && onSlideOpen ? 0 : -1}
+                  onKeyDown={(event) => {
+                    if (
+                      position === 0 &&
+                      onSlideOpen &&
+                      (event.key === 'Enter' || event.key === ' ')
+                    ) {
+                      event.preventDefault()
+                      onSlideOpen(slide)
+                    }
+                  }}
                 >
                   {slide.videoSrc ? (
                     <video
@@ -434,6 +468,11 @@ export function ProjectCarousel({
                       </div>
                     )}
                   </div>
+                  {position === 0 && onSlideOpen && (
+                    <span className="coverflow__open" aria-hidden="true">
+                      查看项目 <span>↗</span>
+                    </span>
+                  )}
                 </div>
               )
             })}
