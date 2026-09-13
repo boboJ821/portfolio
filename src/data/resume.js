@@ -130,19 +130,19 @@ export const portfolioProjects = [
     technologies: ['微信小程序', 'CloudBase', 'NoSQL'],
     accent: '#3b82f6',
     image: '',
-    video: '/manboyanshi.mp4',
-    poster: '/IMG_8289.PNG',
+    video: '/manbo/manboyanshi.mp4',
+    poster: '/manbo/IMG_8289.PNG',
     miniProgram: {
       url: 'https://s.c1ns.cn/WuHbt',
-      code: '/manboma.jpg',
+      code: '/manbo/manboma.jpg',
     },
     gallery: [
       {
         title: '从热爱足球，到发现赛事。',
         description: '以品牌首页建立第一印象，通过焦点赛事入口与球场巡礼连接内容浏览和赛事探索。',
         images: [
-          { src: '/IMG_8289.PNG', caption: '品牌首页 · 赛事入口' },
-          { src: '/IMG_8290.PNG', caption: '球场巡礼 · 横向浏览' },
+          { src: '/manbo/IMG_8289.PNG', caption: '品牌首页 · 赛事入口' },
+          { src: '/manbo/IMG_8290.PNG', caption: '球场巡礼 · 横向浏览' },
         ],
       },
       {
@@ -150,8 +150,8 @@ export const portfolioProjects = [
         description:
           '从多场赛事的概率列表进入单场看板，将球队、开赛状态与概率参考组织在清晰的信息层级中。',
         images: [
-          { src: '/IMG_8291.PNG', caption: '赛前概率 · 多场对照' },
-          { src: '/IMG_8292.PNG', caption: '单场看板 · 数据与使用说明' },
+          { src: '/manbo/IMG_8291.PNG', caption: '赛前概率 · 多场对照' },
+          { src: '/manbo/IMG_8292.PNG', caption: '单场看板 · 数据与使用说明' },
         ],
       },
       {
@@ -159,8 +159,8 @@ export const portfolioProjects = [
         description:
           '用阶段筛选组织常规赛与淘汰赛信息，结合比分、状态和当前比赛入口，缩短查找路径。',
         images: [
-          { src: '/IMG_8293.PNG', caption: '常规赛 · 比分与状态' },
-          { src: '/IMG_8296.PNG', caption: '淘汰赛 · 阶段筛选' },
+          { src: '/manbo/IMG_8293.PNG', caption: '常规赛 · 比分与状态' },
+          { src: '/manbo/IMG_8296.PNG', caption: '淘汰赛 · 阶段筛选' },
         ],
       },
       {
@@ -168,8 +168,8 @@ export const portfolioProjects = [
         description:
           '趋势图呈现不同时间点的占比变化，热力图呈现比分分布，让抽象数据拥有可比较的视觉表达。',
         images: [
-          { src: '/IMG_8297.PNG', caption: '公开数据 · 趋势与局部放大' },
-          { src: '/IMG_8298.PNG', caption: '比分热力图 · 分布对照' },
+          { src: '/manbo/IMG_8297.PNG', caption: '公开数据 · 趋势与局部放大' },
+          { src: '/manbo/IMG_8298.PNG', caption: '比分热力图 · 分布对照' },
         ],
       },
       {
@@ -177,8 +177,8 @@ export const portfolioProjects = [
         description:
           '汇总已结算场次、阶段进度与历史记录，形成可回看的结果视图。图中数值为截图时的界面记录。',
         images: [
-          { src: '/IMG_8294.PNG', caption: '常规赛 · 统计与结算进度' },
-          { src: '/IMG_8295.PNG', caption: '分阶段战绩 · 历史记录' },
+          { src: '/manbo/IMG_8294.PNG', caption: '常规赛 · 统计与结算进度' },
+          { src: '/manbo/IMG_8295.PNG', caption: '分阶段战绩 · 历史记录' },
         ],
       },
     ],
@@ -198,8 +198,50 @@ export const portfolioProjects = [
     technologies: ['微信小程序', '表单交互', '业务流程'],
     accent: '#14b8a6',
     image: '',
-    video: '',
-    poster: '',
+    video: '/chaji/chajiyanshi.mp4',
+    poster: '/chaji/IMG_8328.PNG',
+    miniProgram: {
+      url: 'https://s.c1ns.cn/RKfgy',
+      code: '/chaji/gh_8b0752465f88_430.jpg',
+    },
+    gallery: [
+      {
+        title: '把门店氛围，带到线上。',
+        description:
+          '以门店影像和温暖的视觉语言建立第一印象，将预约、联系门店、卡券与会员服务集中在首页。',
+        images: [
+          { src: '/chaji/IMG_8328.PNG', caption: '品牌首页 · 空间氛围与预约入口' },
+          { src: '/chaji/IMG_8329.PNG', caption: '服务导航 · 卡券、订单与会员储值' },
+        ],
+      },
+      {
+        title: '先选空间，再定时间。',
+        description:
+          '展示房型、设施、价格和可用时段，再通过日期与时长选择完成预约配置，让费用与时间安排清晰可见。',
+        images: [
+          { src: '/chaji/IMG_8330.PNG', caption: '空间列表 · 房型配置与可用时段' },
+          { src: '/chaji/IMG_8331.PNG', caption: '预约配置 · 开始时间、时长与费用' },
+        ],
+      },
+      {
+        title: '跨过午夜，预约依然清楚。',
+        description:
+          '明确标注跨天预约的起止日期，区分可选与不可选时段，并为不同房型保留一致的选择方式。',
+        images: [
+          { src: '/chaji/IMG_8332.PNG', caption: '小茶室 · 跨天时段与日期提示' },
+          { src: '/chaji/IMG_8333.PNG', caption: '麻将室 · 统一预约流程与独立计价' },
+        ],
+      },
+      {
+        title: '预约之后，服务继续。',
+        description:
+          '通过订单状态回看预约与支付记录，在会员中心集中展示余额、订单和常用服务，连接后续到店体验。',
+        images: [
+          { src: '/chaji/IMG_8334.PNG', caption: '订单记录 · 支付状态与预约明细' },
+          { src: '/chaji/IMG_8335.PNG', caption: '会员中心 · 余额与常用服务' },
+        ],
+      },
+    ],
     details: {
       role: '产品 / 设计 / 开发',
       stage: '持续迭代',
