@@ -1,5 +1,6 @@
 import { ProjectCarousel } from '@/components/Projects/ProjectCarousel'
 import { portfolioProjects } from '@/data/resume'
+import { useNavigate } from 'react-router-dom'
 import './Works.css'
 
 const slides = portfolioProjects.map((project) => ({
@@ -16,6 +17,7 @@ const slides = portfolioProjects.map((project) => ({
 }))
 
 const Works = () => {
+  const navigate = useNavigate()
   const hasVideo = slides.some((slide) => Boolean(slide.videoSrc))
 
   return (
@@ -30,6 +32,7 @@ const Works = () => {
 
       <ProjectCarousel
         slides={slides}
+        onSlideOpen={(slide) => navigate(`/projects/${slide.id}`)}
         rotate={38}
         depth={0.62}
         perspective={3.5}

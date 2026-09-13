@@ -3,7 +3,7 @@ import { getBearerToken, signAdminToken, verifyAdminToken } from './_lib/auth.js
 
 const setCorsHeaders = (res) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true')
-  res.setHeader('Access-Control-Allow-Origin', 'https://bbx821.top')
+  res.setHeader('Access-Control-Allow-Origin', 'https://tumeup.online')
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization')
 }

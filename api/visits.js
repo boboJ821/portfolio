@@ -4,7 +4,7 @@ import { getBearerToken, verifyAdminToken } from './_lib/auth.js'
 const setResponseHeaders = (res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.setHeader('Access-Control-Allow-Credentials', 'true')
-  res.setHeader('Access-Control-Allow-Origin', 'https://bbx821.top')
+  res.setHeader('Access-Control-Allow-Origin', 'https://tumeup.online')
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization')
 }
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
           referrer,
           user_agent: userAgent,
           path,
-          domain: 'bbx821.top',
+          domain: 'tumeup.online',
         })
         .select()
         .single()

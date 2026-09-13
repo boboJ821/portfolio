@@ -40,7 +40,7 @@ src/
     Admin/                   访问统计后台
     Background/              WebGL 动态背景与着色器
     Experience/              工作经历时间线
-    Projects/                项目卡片轮播
+    Projects/                项目卡片轮播与项目详情页
     Sections/                首页内容区块
     UI/                      全局界面组件
   config/                    前端运行配置
@@ -52,8 +52,9 @@ supabase/                    数据库策略
 
 ## 更新简历与项目
 
-个人资料、经历、技能和项目都在 `src/data/resume.js` 中维护。项目媒体的放置位置、
-格式和路径示例见 `public/media/projects/README.md`。
+个人资料、经历、技能和项目都在 `src/data/resume.js` 中维护。每个项目的 `details`
+字段用于详情页的背景、方法和价值说明。项目媒体的放置位置、格式和路径示例见
+`public/media/projects/README.md`。
 
 ## 环境变量
 
