@@ -1,0 +1,90 @@
+[
+  {
+    "relative": "公共素材\\自定义模板\\0724.png",
+    "hash": "C94F60B5ADFF36B85226A02E26AB514EDE9E62C31CDCB9A4DD6D416DBCFCB6A3",
+    "bytes": 315961,
+    "sources": [
+      "公共素材\\自定义模板\\0724.png",
+      "华硕数码\\自定义模板\\0724.png",
+      "华硕数码\\配置详情图\\模板0810.png"
+    ],
+    "file": "template-01.png"
+  },
+  {
+    "relative": "公共素材\\自定义模板\\酷炫机箱用.png",
+    "hash": "8DF9A3E96337C182D4C6F9D9B52CD27763746261077C7D75C776BDCD5B6E1B90",
+    "bytes": 148495,
+    "sources": ["公共素材\\自定义模板\\酷炫机箱用.png"],
+    "file": "template-02.png"
+  },
+  {
+    "relative": "华硕数码\\商品主图\\模板.png",
+    "hash": "0167E86D6D99BA0A3949013C842149EDFD0020CBE91955C97E648AA2901F3A98",
+    "bytes": 106606,
+    "sources": ["华硕数码\\商品主图\\模板.png"],
+    "file": "template-03.png"
+  },
+  {
+    "relative": "华硕数码\\直播间贴图\\模板.png",
+    "hash": "D697CD9141AE100C6109DC261A0CFF7DDF8B012ED669CB61357FE1EC87D78751",
+    "bytes": 83586,
+    "sources": ["华硕数码\\直播间贴图\\模板.png"],
+    "file": "template-04.png"
+  },
+  {
+    "relative": "华硕数码\\配置详情图\\模板 拷贝.png",
+    "hash": "737C32C860609B9266F4C4199881CC70DFB1870E3215BF8DBA4146421C6A7648",
+    "bytes": 136009,
+    "sources": ["华硕数码\\配置详情图\\模板 拷贝.png"],
+    "file": "template-05.png"
+  },
+  {
+    "relative": "华硕数码\\配置详情图\\模板.png",
+    "hash": "EC092BADE805B35A9ABB01F72AD3ED04E7A44C9117229AF54D27C02D232283B4",
+    "bytes": 148564,
+    "sources": ["华硕数码\\配置详情图\\模板.png"],
+    "file": "template-06.png"
+  },
+  {
+    "relative": "华硕数码\\配置详情图\\模板_0618备份.png",
+    "hash": "D7AC01D7C60149D57BA20C008DA6A8145C9303A8C575915558210145DF82D5B5",
+    "bytes": 322943,
+    "sources": ["华硕数码\\配置详情图\\模板_0618备份.png"],
+    "file": "template-07.png"
+  },
+  {
+    "relative": "小时达\\商品主图\\模板.png",
+    "hash": "A69DEF378859F5307867233E790EE9278FCF44E30E2F3A0477469F5379E37D14",
+    "bytes": 3575015,
+    "sources": ["小时达\\商品主图\\模板.png"],
+    "file": "template-08.png"
+  },
+  {
+    "relative": "小时达\\商品主图\\模板_旧版.jpg",
+    "hash": "DE95F720841176E1598412AC93BFA780C07C390863957ACF32710C0BAF744AC1",
+    "bytes": 2336248,
+    "sources": ["小时达\\商品主图\\模板_旧版.jpg"],
+    "file": "template-09.jpg"
+  },
+  {
+    "relative": "小时达\\直播间贴图\\模板.png",
+    "hash": "7A300492529D27302BD3E8E0861B450C26E8741BE430224CE9FB596A5AC6F6F8",
+    "bytes": 77700,
+    "sources": ["小时达\\直播间贴图\\模板.png"],
+    "file": "template-10.png"
+  },
+  {
+    "relative": "小时达\\配置详情图\\模板.png",
+    "hash": "1851B6A84BABF56C59618C166575F7C50C90BCB24FAF8732153F11C43172F3B3",
+    "bytes": 4645228,
+    "sources": ["小时达\\配置详情图\\模板.png"],
+    "file": "template-11.png"
+  },
+  {
+    "relative": "正正装机DIY\\直播间贴图\\模板.png",
+    "hash": "98A8B7B6AD4B0DE4392816BED35861D92536140BA004C85F3ACCA8AC074058CA",
+    "bytes": 137240,
+    "sources": ["正正装机DIY\\直播间贴图\\模板.png"],
+    "file": "template-12.png"
+  }
+]

@@ -1,3 +1,5 @@
+import wallpaperVideos from './wallpaperVideos.json'
+
 export const profile = {
   name: '黄曦',
   englishName: 'Huang Xi',
@@ -103,7 +105,16 @@ export const resumeProjects = [
   },
 ]
 
-export const portfolioProjects = [
+// 展示顺序即此列表顺序；开放其他项目时，将其 id 加入列表即可。
+const visibleProjectIds = [
+  'manbo-football',
+  'chaji-booking',
+  'batch-image-generation',
+  'xiaohongshu-wallpaper',
+  'video-account',
+]
+
+const allPortfolioProjects = [
   {
     id: 'batch-image-generation',
     title: '图片批量生成',
@@ -112,8 +123,40 @@ export const portfolioProjects = [
     technologies: ['Python', 'Excel', '图像自动化'],
     accent: '#a855f7',
     image: '',
-    video: '',
-    poster: '',
+    video: '/DIY image/DIY imageyanshi.mp4',
+    cardVideo: '/media/card-videos/diy.mp4',
+    poster: '/DIY image/屏幕截图 2026-09-14 135350.png',
+    galleryLayout: 'desktop',
+    gallery: [
+      {
+        title: '从一份表格，开始批量生产。',
+        description: '选择店铺、模板与数据表，在生产台预览不同配置，统一设置输出格式与批次。',
+        images: [
+          { src: '/DIY image/屏幕截图 2026-09-14 135350.png', caption: '生产台 · 生成前预览' },
+          { src: '/DIY image/屏幕截图 2026-09-14 135444.png', caption: '数据输入 · Excel 配置表' },
+        ],
+      },
+      {
+        title: '让模板成为可复用的规则。',
+        description: '按店铺与用途管理模板，通过区域编辑器设置文字与图片位置，减少重复排版。',
+        images: [
+          { src: '/DIY image/屏幕截图 2026-09-14 135519.png', caption: '模板库 · 店铺与场景分类' },
+          { src: '/DIY image/屏幕截图 2026-09-14 135622.png', caption: '区域编辑器 · 可视化配置' },
+        ],
+      },
+      {
+        title: '从单张效果，到整批交付。',
+        description:
+          '将不同商品配置生成统一风格的视觉物料。图中配置与价格仅作为项目演示，不代表当前销售信息。',
+        images: [
+          {
+            src: '/DIY image/屏幕截图 2026-09-14 135915.png',
+            caption: '单张成品 · 配置与商品图组合',
+          },
+          { src: '/DIY image/屏幕截图 2026-09-14 140015.png', caption: '批量结果 · 输出文件展示' },
+        ],
+      },
+    ],
     details: {
       role: '独立设计与开发',
       stage: '工具化交付',
@@ -131,6 +174,7 @@ export const portfolioProjects = [
     accent: '#3b82f6',
     image: '',
     video: '/manbo/manboyanshi.mp4',
+    cardVideo: '/media/card-videos/manbo.mp4',
     poster: '/manbo/IMG_8289.PNG',
     miniProgram: {
       url: 'https://s.c1ns.cn/WuHbt',
@@ -199,6 +243,7 @@ export const portfolioProjects = [
     accent: '#14b8a6',
     image: '',
     video: '/chaji/chajiyanshi.mp4',
+    cardVideo: '/media/card-videos/chaji.mp4',
     poster: '/chaji/IMG_8328.PNG',
     miniProgram: {
       url: 'https://s.c1ns.cn/RKfgy',
@@ -253,19 +298,48 @@ export const portfolioProjects = [
   {
     id: 'xiaohongshu-wallpaper',
     title: '小红书壁纸',
-    category: '内容与视觉项目',
-    description: '面向小红书内容场景的壁纸素材整理与展示项目。',
+    category: '视觉内容与账号运营',
+    description:
+      '从一张壁纸，到持续更新的视觉内容。围绕静态与动态壁纸，连接主题内容、账号展示与用户反馈。',
     technologies: ['视觉内容', '壁纸素材', '内容运营'],
     accent: '#ec4899',
     image: '',
-    video: '',
-    poster: '',
+    video: '/red book/red bookyanshi.mp4',
+    cardVideo: '/media/card-videos/redbook.mp4',
+    poster: '/red book/IMG_8346.PNG',
+    metrics: [
+      { label: '粉丝', value: '1,502' },
+      { label: '已发布笔记', value: '85' },
+      { label: '点赞', value: '约 1.5 万' },
+      { label: '收藏', value: '3,662' },
+    ],
+    cardStack: wallpaperVideos,
+    gallery: [
+      {
+        title: '账号印象与阶段反馈。',
+        description: '从主题内容到用户互动，记录壁纸账号的内容积累。数据截至截图时。',
+        images: [
+          {
+            src: '/red book/IMG_8346.PNG',
+            caption: '账号主页',
+            description:
+              '以壁纸分享为入口，通过头像、简介、主题合集与店铺入口，组织账号的视觉内容与浏览路径。',
+          },
+          {
+            src: '/red book/IMG_8347.PNG',
+            caption: '互动反馈',
+            description:
+              '截图时已发布 85 篇笔记，获得约 1.5 万点赞与 3,662 次收藏。这些数据记录内容积累，不代表浏览量或销售额。',
+          },
+        ],
+      },
+    ],
     details: {
       role: '内容与视觉设计',
-      stage: '内容实验',
+      stage: '阶段成果展示',
       brief: '围绕移动端壁纸消费场景，探索视觉素材的整理、包装与持续发布。',
-      approach: '用统一的内容规格和视觉语言组织素材，提高浏览与选择效率。',
-      value: '形成适合社交平台传播的轻量内容生产方式。',
+      approach: '通过主题合集组织壁纸内容，以主页录屏和账号截图呈现浏览体验与阶段反馈。',
+      value: '将视觉内容整理为可持续浏览的账号作品集，并用点赞与收藏记录用户反馈。',
     },
   },
   {
@@ -325,15 +399,16 @@ export const portfolioProjects = [
   {
     id: 'video-account',
     title: '视频账号',
-    category: '短视频运营项目',
-    description: '覆盖选题、脚本、拍摄、剪辑、发布、投流和数据复盘的短视频账号运营。',
+    category: '账号搭建与视频团队管理',
+    description: '从 0 到 1 搭建四个数码账号，负责选题至投流全链路，并完成账号向团队的交接。',
     technologies: ['短视频', '抖音运营', '数据复盘'],
     accent: '#ef4444',
     image: '',
-    video: '',
-    poster: '',
+    video: '/douyin/douyinyanshi.mp4',
+    cardVideo: '/media/card-videos/douyin.mp4',
+    poster: '/douyin/IMG_8351.PNG',
     details: {
-      role: '内容策划与运营',
+      role: '全链路视频制作、投流与团队管理',
       stage: '长期运营',
       brief: '从单条内容制作出发，建立可持续迭代的短视频账号运营方式。',
       approach: '串联选题、脚本、拍摄、剪辑、发布、投流与数据复盘。',
@@ -341,6 +416,12 @@ export const portfolioProjects = [
     },
   },
 ]
+
+export const portfolioProjects = visibleProjectIds.map((id) => {
+  const project = allPortfolioProjects.find((item) => item.id === id)
+  if (!project) throw new Error(`Unknown visible project: ${id}`)
+  return project
+})
 
 export const skillCategories = [
   {

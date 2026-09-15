@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import gsap from 'gsap'
 import * as THREE from 'three'
@@ -85,26 +85,12 @@ const CameraController = () => {
 }
 
 const Scene = () => {
-  const [pauseAnimation, setPauseAnimation] = useState(false)
-
-  useEffect(() => {
-    const projectsSection = document.getElementById('works')
-    if (!projectsSection) return undefined
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setPauseAnimation(entry.isIntersecting && entry.intersectionRatio > 0.15),
-      { threshold: [0, 0.15, 0.6] },
-    )
-    observer.observe(projectsSection)
-    return () => observer.disconnect()
-  }, [])
-
   return (
     <div className="fixed left-0 top-0 h-full w-full bg-[#030108]" aria-hidden="true">
       <Canvas
         camera={{ position: [-2.2, 2.2, 2.2], fov: 45 }}
         dpr={[1, 1.5]}
-        frameloop={pauseAnimation ? 'never' : 'always'}
+        frameloop="always"
         gl={{ antialias: false, powerPreference: 'high-performance' }}
         style={{ position: 'absolute' }}
       >

@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { portfolioProjects } from '@/data/resume'
+import ProjectCardStack from './ProjectCardStack'
+import VideoAccountDetail from './VideoAccountDetail'
 import './ProjectDetail.css'
 
 const Arrow = ({ direction = 'right' }) => (
@@ -65,6 +67,7 @@ const ProjectDetail = () => {
   }, [project])
 
   if (!project) return <Navigate to="/#works" replace />
+  if (project.id === 'video-account') return <VideoAccountDetail />
 
   const nextProject = portfolioProjects[(projectIndex + 1) % portfolioProjects.length]
   const details = project.details
@@ -111,7 +114,20 @@ const ProjectDetail = () => {
                   </div>
                 </dl>
               </div>
-              {project.gallery && (
+              {project.metrics && (
+                <>
+                  <dl className="project-metrics">
+                    {project.metrics.map((metric) => (
+                      <div key={metric.label}>
+                        <dd>{metric.value}</dd>
+                        <dt>{metric.label}</dt>
+                      </div>
+                    ))}
+                  </dl>
+                  <p className="project-metrics-note">数据截至截图时 · 非实时统计</p>
+                </>
+              )}
+              {(project.gallery || project.cardStack) && (
                 <a className="project-hero__explore" href="#project-chapter-1">
                   探索项目界面 ↓
                 </a>
@@ -179,11 +195,12 @@ const ProjectDetail = () => {
           </div>
         </section>
 
+        {project.cardStack && <ProjectCardStack key={project.id} items={project.cardStack} />}
         {project.gallery ? (
           <section className="project-gallery project-gallery--screens" aria-label="实机界面展示">
             {project.gallery.map((chapter, index) => (
               <section
-                className="project-screens"
+                className={`project-screens${project.galleryLayout === 'desktop' ? ' project-screens--desktop' : ''}`}
                 id={`project-chapter-${index + 1}`}
                 key={chapter.title}
               >
@@ -191,7 +208,11 @@ const ProjectDetail = () => {
                   <span>{String(index + 1).padStart(2, '0')} / PRODUCT EXPERIENCE</span>
                   <h2>{chapter.title}</h2>
                   <p>{chapter.description}</p>
-                  <small>点击查看原图 · 手机端左右滑动</small>
+                  <small>
+                    {project.galleryLayout === 'desktop'
+                      ? '点击图片查看原图'
+                      : '点击查看原图 · 手机端左右滑动'}
+                  </small>
                   <nav className="project-chapter-nav" aria-label={`第 ${index + 1} 章导航`}>
                     {project.gallery.map((item, chapterIndex) => (
                       <a
@@ -217,8 +238,8 @@ const ProjectDetail = () => {
                         <img
                           src={item.src}
                           alt={item.caption}
-                          width="1206"
-                          height="2622"
+                          width={project.galleryLayout === 'desktop' ? undefined : 1206}
+                          height={project.galleryLayout === 'desktop' ? undefined : 2622}
                           loading="lazy"
                           decoding="async"
                         />
