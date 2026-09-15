@@ -6,7 +6,7 @@ import './Works.css'
 const slides = portfolioProjects.map((project) => ({
   id: project.id,
   src: project.image || undefined,
-  videoSrc: project.video || undefined,
+  videoSrc: project.cardVideo || project.video || undefined,
   poster: project.poster || undefined,
   accent: project.accent,
   alt: `${project.title}项目演示`,

@@ -34,8 +34,7 @@ export interface ProjectCarouselProps {
   className?: string
 }
 
-const MOTION_DURATION = 620
-const TRACK_RESET_DURATION = 280
+const MOTION_DURATION = 760
 const STAGING_RANGE = 3
 
 const joinClasses = (...classes: Array<string | false | undefined>) =>
@@ -84,7 +83,6 @@ export function ProjectCarousel({
   const isVisibleRef = React.useRef(false)
   const lastInteractionRef = React.useRef(0)
   const finishTimerRef = React.useRef<number | null>(null)
-  const trackTimerRef = React.useRef<number | null>(null)
   const dragRafRef = React.useRef<number | null>(null)
   const didDragRef = React.useRef(false)
   const dragRef = React.useRef<{
@@ -99,6 +97,7 @@ export function ProjectCarousel({
   } | null>(null)
   const [selected, setSelected] = React.useState(0)
   const [motionDirection, setMotionDirection] = React.useState(0)
+  const [settling, setSettling] = React.useState(false)
 
   const normalizeIndex = React.useCallback(
     (index: number) => {
@@ -129,31 +128,32 @@ export function ProjectCarousel({
     (direction: number, isUserInteraction = true) => {
       if (!count || movingRef.current || dragRef.current) return
 
-      const nextDirection = Math.sign(direction)
-      if (!nextDirection) return
-
       const current = selectedRef.current
-      if (!loop) {
-        if (nextDirection < 0 && current === 0) return
-        if (nextDirection > 0 && current === count - 1) return
-      }
+      const nextDirection = loop
+        ? Math.round(direction)
+        : Math.max(-current, Math.min(count - 1 - current, Math.round(direction)))
 
       if (isUserInteraction) markInteraction()
       movingRef.current = true
+      setSettling(true)
       setMotionDirection(nextDirection)
-      if (isUserInteraction) triggerHaptic()
+      if (isUserInteraction && nextDirection) triggerHaptic()
 
-      finishTimerRef.current = window.setTimeout(() => {
-        const next = loop
-          ? normalizeIndex(selectedRef.current + nextDirection)
-          : Math.max(0, Math.min(count - 1, selectedRef.current + nextDirection))
+      finishTimerRef.current = window.setTimeout(
+        () => {
+          const next = loop
+            ? normalizeIndex(selectedRef.current + nextDirection)
+            : Math.max(0, Math.min(count - 1, selectedRef.current + nextDirection))
 
-        selectedRef.current = next
-        setSelected(next)
-        setMotionDirection(0)
-        movingRef.current = false
-        finishTimerRef.current = null
-      }, MOTION_DURATION)
+          selectedRef.current = next
+          setSelected(next)
+          setMotionDirection(0)
+          setSettling(false)
+          movingRef.current = false
+          finishTimerRef.current = null
+        },
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : MOTION_DURATION,
+      )
     },
     [count, loop, markInteraction, normalizeIndex, triggerHaptic],
   )
@@ -165,46 +165,16 @@ export function ProjectCarousel({
 
       const forward = normalizeIndex(index - selectedRef.current)
       const backward = normalizeIndex(selectedRef.current - index)
-      if (forward === 1) {
-        move(1)
-      } else if (backward === 1) {
-        move(-1)
-      } else {
-        selectedRef.current = index
-        setSelected(index)
-      }
+      move(loop ? (forward <= backward ? forward : -backward) : index - selectedRef.current)
     },
     [markInteraction, move, normalizeIndex],
   )
 
-  const resetTrack = React.useCallback(() => {
-    const track = trackRef.current
-    if (!track) return
-
-    track.classList.remove('coverflow__track--dragging')
-    track.classList.add('coverflow__track--resetting')
-    requestAnimationFrame(() => {
-      track.style.transform = 'translate3d(0, 0, 0)'
-    })
-
-    if (trackTimerRef.current !== null) window.clearTimeout(trackTimerRef.current)
-    trackTimerRef.current = window.setTimeout(() => {
-      track.classList.remove('coverflow__track--resetting')
-      trackTimerRef.current = null
-    }, TRACK_RESET_DURATION)
-  }, [])
-
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (movingRef.current) return
+    if (movingRef.current || dragRef.current || !event.isPrimary || event.button !== 0) return
     markInteraction()
     didDragRef.current = false
     event.currentTarget.setPointerCapture(event.pointerId)
-
-    const track = trackRef.current
-    if (track) {
-      track.classList.remove('coverflow__track--resetting')
-      track.classList.add('coverflow__track--dragging')
-    }
 
     dragRef.current = {
       id: event.pointerId,
@@ -216,7 +186,9 @@ export function ProjectCarousel({
       lastTime: performance.now(),
       velocity: 0,
       offset: 0,
-      width: frameRef.current?.getBoundingClientRect().width || 1,
+      width:
+        (trackRef.current?.querySelector<HTMLElement>('.coverflow__card')?.offsetWidth || 1) *
+        (1 + gap),
     }
   }
 
@@ -230,16 +202,22 @@ export function ProjectCarousel({
     drag.lastX = event.clientX
     drag.lastTime = now
     drag.offset = Math.max(
-      -drag.width * 0.38,
-      Math.min(drag.width * 0.38, event.clientX - drag.startX),
+      -drag.width * 0.85,
+      Math.min(drag.width * 0.85, event.clientX - drag.startX),
     )
     if (Math.abs(drag.offset) > 6) didDragRef.current = true
 
     if (dragRafRef.current !== null) return
     dragRafRef.current = requestAnimationFrame(() => {
       const currentDrag = dragRef.current
-      if (currentDrag && trackRef.current) {
-        trackRef.current.style.transform = `translate3d(${currentDrag.offset}px, 0, 0)`
+      if (currentDrag && didDragRef.current) {
+        let progress = -currentDrag.offset / currentDrag.width
+        if (
+          !loop &&
+          (selectedRef.current + progress < 0 || selectedRef.current + progress > count - 1)
+        )
+          progress *= 0.2
+        setMotionDirection(progress)
       }
       dragRafRef.current = null
     })
@@ -255,16 +233,23 @@ export function ProjectCarousel({
       dragRafRef.current = null
     }
 
+    const cancelled = event.type === 'pointercancel' || event.type === 'lostpointercapture'
+    const velocity = performance.now() - drag.lastTime < 100 ? drag.velocity : 0
     const shouldMove =
-      Math.abs(drag.offset) > Math.min(drag.width * 0.11, 90) || Math.abs(drag.velocity) > 0.45
+      !cancelled &&
+      didDragRef.current &&
+      (Math.abs(drag.offset) > Math.min(drag.width * 0.18, 100) || Math.abs(velocity) > 0.5)
     const direction = drag.offset < 0 ? 1 : -1
-    resetTrack()
+    if (event.currentTarget.hasPointerCapture(event.pointerId))
+      event.currentTarget.releasePointerCapture(event.pointerId)
 
     if (shouldMove) {
-      requestAnimationFrame(() => move(direction))
-    } else if (drag.openId && onSlideOpen && !didDragRef.current) {
+      move(direction)
+    } else if (!cancelled && drag.openId && onSlideOpen && !didDragRef.current) {
       const slide = slides.find((item) => item.id === drag.openId)
       if (slide) onSlideOpen(slide)
+    } else if (didDragRef.current) {
+      move(0)
     }
   }
 
@@ -339,7 +324,6 @@ export function ProjectCarousel({
   React.useEffect(
     () => () => {
       if (finishTimerRef.current !== null) window.clearTimeout(finishTimerRef.current)
-      if (trackTimerRef.current !== null) window.clearTimeout(trackTimerRef.current)
       if (dragRafRef.current !== null) cancelAnimationFrame(dragRafRef.current)
     },
     [],
@@ -361,8 +345,18 @@ export function ProjectCarousel({
 
   return (
     <div
-      className={joinClasses('coverflow', motionDirection !== 0 && 'coverflow--moving', className)}
-      style={{ '--coverflow-card': cardWidth } as React.CSSProperties}
+      className={joinClasses(
+        'coverflow',
+        (motionDirection !== 0 || settling) && 'coverflow--moving',
+        settling && 'coverflow--settling',
+        className,
+      )}
+      style={
+        {
+          '--coverflow-card': cardWidth,
+          '--coverflow-duration': `${MOTION_DURATION}ms`,
+        } as React.CSSProperties
+      }
       role="region"
       aria-roledescription="carousel"
       aria-label={label}
@@ -376,6 +370,7 @@ export function ProjectCarousel({
           onPointerMove={handlePointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
+          onLostPointerCapture={endDrag}
           onKeyDown={(event) => {
             if (event.key === 'ArrowLeft') {
               event.preventDefault()
@@ -422,6 +417,8 @@ export function ProjectCarousel({
                   onKeyDown={(event) => {
                     if (
                       position === 0 &&
+                      !movingRef.current &&
+                      !dragRef.current &&
                       onSlideOpen &&
                       (event.key === 'Enter' || event.key === ' ')
                     ) {

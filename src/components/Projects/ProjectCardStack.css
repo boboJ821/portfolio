@@ -1,0 +1,238 @@
+.project-card-stack {
+  padding-top: 2rem;
+  border-top: 1px solid var(--project-line);
+  gap: 1rem;
+}
+.project-card-stack header {
+  text-align: center;
+}
+.project-card-stack header > span {
+  color: var(--project-accent);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+}
+.project-card-stack h2 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 450;
+  margin: 0.8rem 0;
+}
+.project-card-stack p,
+.project-card-stack small {
+  color: var(--project-muted);
+  font-size: 0.8rem;
+  line-height: 1.8;
+}
+.project-card-stack__stage {
+  position: relative;
+  height: 34rem;
+  margin-top: 0rem;
+  --fan-radius: clamp(40rem, 70vw, 65rem);
+  --fan-step: 3.8deg;
+  --fan-tilt: 0.35;
+  touch-action: pan-y;
+}
+.project-card-stack__card {
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  width: 12rem;
+  padding: 0.4rem;
+  border: 1px solid #ffffff26;
+  border-radius: 0.9rem;
+  background: #201822;
+  box-shadow: 0 12px 32px #0005;
+  cursor: pointer;
+  --card-angle: calc(var(--offset) * var(--fan-step));
+  transform-origin: 50% 0;
+  /* Keep the top-center on the same arc; reduce inward tilt to open the bottom. */
+  transform: translateX(-50%)
+    translate(
+      calc(var(--fan-radius) * sin(var(--card-angle))),
+      calc(var(--fan-radius) * (1 - cos(var(--card-angle))))
+    )
+    rotate(calc(var(--card-angle) * var(--fan-tilt)));
+  transition:
+    transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 300ms ease;
+}
+.project-card-stack__card.is-selected {
+  transform: translateX(-50%) rotate(0deg) translateY(-1.5rem);
+  border-color: var(--project-accent);
+}
+.project-card-stack__card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.6rem;
+}
+.project-card-stack__selection {
+  text-align: center;
+  max-width: 38rem;
+  margin-inline: auto;
+}
+.project-card-stack__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.project-card-stack__tabs button,
+.project-card-stack__open {
+  color: var(--project-ink);
+  background: transparent;
+  border: 1px solid var(--project-line);
+  border-radius: 2rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.project-card-stack__tabs button[aria-pressed='true'] {
+  border-color: var(--project-accent);
+  background: #ec489912;
+}
+.project-card-stack :focus-visible {
+  outline: 2px solid var(--project-accent);
+  outline-offset: 4px;
+}
+.project-card-stack__dialog {
+  width: min(42rem, calc(100% - 2rem));
+  max-height: 90svh;
+  overflow-y: auto;
+  padding: 1rem;
+  border: 1px solid #ffffff30;
+  border-radius: 1rem;
+  color: #f5f3f7;
+  background: #151019;
+}
+.project-card-stack__dialog::backdrop {
+  background: #000c;
+}
+.project-card-stack__dialog-bar {
+  position: sticky;
+  top: -1rem;
+  background: #151019;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 0.5rem;
+}
+.project-card-stack__dialog h3 {
+  font-size: 0.95rem;
+}
+.project-card-stack__dialog button {
+  color: inherit;
+  background: transparent;
+  border: 1px solid #ffffff40;
+  border-radius: 2rem;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+}
+.project-card-stack__dialog > img {
+  display: block;
+  width: min(100%, 26rem);
+  height: auto;
+  margin-inline: auto;
+}
+.project-card-stack__dialog > a {
+  display: block;
+  color: #f2a6ce;
+  margin-top: 1rem;
+}
+.project-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--project-line);
+}
+.project-metrics dd {
+  font-size: 1.2rem;
+  margin: 0;
+}
+.project-metrics dt,
+.project-metrics-note {
+  color: var(--project-muted);
+  font-size: 0.65rem;
+}
+.project-page[data-project='xiaohongshu-wallpaper'] .project-visual--video {
+  aspect-ratio: auto;
+  max-width: 35rem;
+  justify-self: center;
+}
+.project-page[data-project='xiaohongshu-wallpaper'] .project-visual--video > video {
+  height: auto;
+  object-fit: contain;
+}
+.project-card-stack__card video {
+  display: block;
+  width: 100%;
+  height: 23rem;
+  object-fit: contain;
+  background: #09070d;
+  border-radius: 0.6rem;
+}
+.project-card-stack__back {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 23rem;
+  border: 1px solid #ec489944;
+  border-radius: 0.6rem;
+  background: linear-gradient(145deg, #45203a, #16101d);
+  color: #f0b9d4;
+  cursor: pointer;
+}
+.project-card-stack__back > span {
+  font-size: 2rem;
+}
+.project-card-stack__back {
+  padding: 0;
+  overflow: hidden;
+  background: #09070d;
+}
+.project-card-stack__back > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.project-card-stack__tabs button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+@media (max-width: 55rem) {
+  .project-page[data-project='xiaohongshu-wallpaper'] .project-visual--video {
+    max-width: 28rem;
+  }
+  .project-card-stack__stage {
+    --fan-radius: 32rem;
+    --fan-step: 2.8deg;
+  }
+}
+@media (max-width: 35rem) {
+  .project-card-stack__card video,
+  .project-card-stack__back {
+    height: 20rem;
+  }
+}
+@media (max-width: 35rem) {
+  .project-card-stack__card {
+    width: 10rem;
+  }
+  .project-card-stack__stage {
+    height: 28rem;
+    --fan-radius: 30rem;
+    --fan-step: 1.5deg;
+  }
+  .project-metrics {
+    gap: 0.5rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-card-stack__card {
+    transition: none;
+  }
+}
